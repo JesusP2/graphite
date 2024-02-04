@@ -155,6 +155,12 @@ export function Sidebar() {
             <span className={hideText(isOpen)}>Settings</span>
           </SidebarLink>
         </div>
+        <div className="border-t border-dashed border-stone-300 mt-4 pt-4">
+          <SidebarLink href="/users">
+            <HiOutlineUsers size={21} className="min-w-[21px]" />
+            <span className={hideText(isOpen)}>Users</span>
+          </SidebarLink>
+        </div>
       </div>
       <div className="border-t border-dashed border-stone-300 mt-4 pt-4">
         <UserDropdown
