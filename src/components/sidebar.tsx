@@ -27,8 +27,9 @@ const bungee = Bungee({
 });
 
 const hideText = (isOpen: boolean) =>
-  cn('duration-200', isOpen ? 'opacity-100 visible' : 'opacity-0 invisible');
-export function Sidebar() {
+  cn(isOpen ? 'opacity-100 visible' : 'opacity-0 invisible');
+
+export function Sidebar({ organization }: { organization: string }) {
   const [isOpen, setOpen] = useState(false);
   const [isMouseOver, setMouseOver] = useState(false);
   const [isSidebarPinned, setPinSidebar] = useState(false);
@@ -91,7 +92,7 @@ export function Sidebar() {
           </button>
         </div>
         <div className="flex flex-col gap-y-2">
-          <SidebarLink href="/overview">
+          <SidebarLink href={`/organization/${organization}/overview`}>
             <GoProject size={22} className="min-w-[22px]" />
             <span
               className={cn(
@@ -101,7 +102,7 @@ export function Sidebar() {
               Overview
             </span>
           </SidebarLink>
-          <SidebarLink href="/projects">
+          <SidebarLink href={`/organization/${organization}/projects`}>
             <BsWindowStack size={20} className="min-w-[20px]" />
             <span className={hideText(isOpen)}>Projects</span>
           </SidebarLink>
@@ -130,27 +131,27 @@ export function Sidebar() {
                 isOpen ? 'opacity-100 visible' : 'opacity-0 invisible',
               )}
             >
-              <SidebarLink href="/suites">
+              <SidebarLink href={`/organization/${organization}/suites`}>
                 <VscGroupByRefType size={20} className="min-w-[20px]" />
                 <span className={hideText(isOpen)}>Suites</span>
               </SidebarLink>
-              <SidebarLink href="/suites/runs">
+              <SidebarLink href={`/organization/${organization}/suites/runs`}>
                 <VscVmRunning size={18} className="min-w-[18px]" />
                 <span className={hideText(isOpen)}>Suites runs</span>
               </SidebarLink>
             </CollapsibleContent>
           </Collapsible>
-          <SidebarLink href="/activity">
+          <SidebarLink href={`/organization/${organization}/activity`}>
             <BsActivity size={20} className="min-w-[20px]" />
             <span className={hideText(isOpen)}>Activity</span>
           </SidebarLink>
         </div>
         <div className="border-t border-dashed border-stone-300 mt-4 pt-4">
-          <SidebarLink href="/users">
+          <SidebarLink href={`/organization/${organization}/users`}>
             <HiOutlineUsers size={21} className="min-w-[21px]" />
             <span className={hideText(isOpen)}>Users</span>
           </SidebarLink>
-          <SidebarLink href="/settings">
+          <SidebarLink href={`/organization/${organization}/settings`}>
             <GoGear size={20} className="min-w-[20px]" />
             <span className={hideText(isOpen)}>Settings</span>
           </SidebarLink>

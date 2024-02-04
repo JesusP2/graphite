@@ -1,5 +1,4 @@
 import {
-	datetime,
 	index,
 	int,
 	boolean,
@@ -14,6 +13,7 @@ import {
 export const organizations = mysqlTable("organizations", {
 	id: varchar("id", { length: 191 }).primaryKey().notNull(),
 	name: varchar("name", { length: 191 }).notNull(),
+  description: text("description").notNull(),
 	createdAt: timestamp("created_at").notNull().defaultNow().onUpdateNow(),
 	updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),
 });
