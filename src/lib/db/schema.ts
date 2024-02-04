@@ -14,9 +14,13 @@ export const organizations = mysqlTable("organizations", {
 	id: varchar("id", { length: 191 }).primaryKey().notNull(),
 	name: varchar("name", { length: 191 }).notNull(),
   description: text("description").notNull(),
+  logo: text("logo").notNull(),
+  domain: varchar("domain", { length: 100 }).notNull().unique(),
 	createdAt: timestamp("created_at").notNull().defaultNow().onUpdateNow(),
 	updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),
-});
+}, (organizations) => ({
+  domainIndex: uniqueIndex("organizations__domain__idx").on(organizations.domain),
+}));
 
 export const usersToOrganizations = mysqlTable(
 	"users_to_organizations",
@@ -30,6 +34,24 @@ export const usersToOrganizations = mysqlTable(
 			"users_to_organizations__user_id__org_id__idx"
 		).on(usersToOrganizations.userId, usersToOrganizations.orgId),
 	})
+);
+
+export const organizationInvites = mysqlTable(
+  "organization_invites_requests",
+  {
+    id: varchar("id", { length: 191 }).primaryKey().notNull(),
+    userId: varchar("user_id", { length: 191 }).notNull(),
+    domain: varchar("domain", { length: 191 }).notNull(),
+    type: mysqlEnum("type", ["Invite", "Request"]).notNull(),
+    status: mysqlEnum("status", ["Pending", "Approved", "Rejected"]).notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow().onUpdateNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),
+  },
+  (organizationInvites) => ({
+    organizationIndex: index(
+      "invites__org_id__idx"
+    ).on(organizationInvites.domain),
+  })
 );
 
 export const projects = mysqlTable(

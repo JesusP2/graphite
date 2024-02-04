@@ -31,6 +31,7 @@ export async function GET(req: NextRequest) {
   url.pathname = "/";
   const response = NextResponse.redirect(url);
 
+  console.log('setting cookie')
   response.cookies.set({
     name: "token",
     value: token,

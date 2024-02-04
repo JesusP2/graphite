@@ -7,6 +7,7 @@ specifiers:
   '@radix-ui/react-collapsible': ^1.0.3
   '@radix-ui/react-dialog': ^1.0.5
   '@radix-ui/react-dropdown-menu': ^2.0.6
+  '@radix-ui/react-label': ^2.0.2
   '@radix-ui/react-slot': ^1.0.2
   '@radix-ui/themes': ^2.0.3
   '@types/node': ^20
@@ -43,6 +44,7 @@ dependencies:
   '@radix-ui/react-collapsible': 1.0.3_53swvjg5d4vee6odcktdjzlijq
   '@radix-ui/react-dialog': 1.0.5_53swvjg5d4vee6odcktdjzlijq
   '@radix-ui/react-dropdown-menu': 2.0.6_53swvjg5d4vee6odcktdjzlijq
+  '@radix-ui/react-label': 2.0.2_53swvjg5d4vee6odcktdjzlijq
   '@radix-ui/react-slot': 1.0.2_z4qn5m62jnw5xrigtnmlk62un4
   '@radix-ui/themes': 2.0.3_53swvjg5d4vee6odcktdjzlijq
   '@workos-inc/node': 5.1.4

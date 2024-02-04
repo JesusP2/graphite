@@ -7,7 +7,7 @@ const config: Config = {
   dbCredentials: {
     uri: envs.DB_URL,
   },
-  out: "./src/lib/db",
+  out: "./migrations-folder",
   breakpoints: false,
 };
 

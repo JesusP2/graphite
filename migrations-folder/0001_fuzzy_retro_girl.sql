@@ -1,0 +1,1 @@
+ALTER TABLE `organizations` MODIFY COLUMN `domain` varchar(100) NOT NULL;

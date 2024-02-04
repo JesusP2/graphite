@@ -18,13 +18,7 @@ import {
 import { UserDropdown } from '@/components/user-dropdown';
 import { SidebarLink } from '@/components/sidebar-link';
 import { useEffect, useState } from 'react';
-import { Bungee } from 'next/font/google';
-
-const bungee = Bungee({
-  weight: '400',
-  subsets: ['latin'],
-  display: 'swap',
-});
+import { bungeeFont } from '@/lib/fonts';
 
 const hideText = (isOpen: boolean) =>
   cn(isOpen ? 'opacity-100 visible' : 'opacity-0 invisible');
@@ -68,7 +62,7 @@ export function Sidebar({ organization }: { organization: string }) {
             <p
               className={cn(
                 'text-3xl font-bold text-left ml-3 mb-4',
-                bungee.className,
+                bungeeFont.className,
               )}
             >
               G
@@ -77,7 +71,7 @@ export function Sidebar({ organization }: { organization: string }) {
               className={cn(
                 'text-3xl font-bold text-left w-full mb-4 whitespace-nowrap duration-300',
                 hideText(isOpen),
-                bungee.className,
+                bungeeFont.className,
               )}
             >
               aphite

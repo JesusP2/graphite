@@ -1,22 +1,3 @@
-CREATE TABLE `accounts` (
-	`id` varchar(191) NOT NULL,
-	`user_id` varchar(191),
-	`type` varchar(191) NOT NULL,
-	`provider` varchar(191) NOT NULL,
-	`provider_account_id` varchar(191) NOT NULL,
-	`access_token` text,
-	`expires_in` int,
-	`id_token` text,
-	`refresh_token` text,
-	`refresh_token_expires_in` int,
-	`scope` varchar(191),
-	`token_type` varchar(191),
-	`created_at` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
-	`updated_at` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
-	CONSTRAINT `accounts_id` PRIMARY KEY(`id`),
-	CONSTRAINT `accounts__provider__providerAccountId__idx` UNIQUE(`provider`,`provider_account_id`)
-);
-
 CREATE TABLE `comments` (
 	`id` varchar(191) NOT NULL,
 	`suite_run_id` varchar(191),
@@ -37,12 +18,27 @@ CREATE TABLE `cronjobs` (
 	CONSTRAINT `cronjobs_id` PRIMARY KEY(`id`)
 );
 
+CREATE TABLE `organization_invites_requests` (
+	`id` varchar(191) NOT NULL,
+	`user_id` varchar(191) NOT NULL,
+	`org_id` varchar(191) NOT NULL,
+	`type` enum('Invite','Request') NOT NULL,
+	`status` enum('Pending','Approved','Rejected') NOT NULL,
+	`created_at` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	`updated_at` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `organization_invites_requests_id` PRIMARY KEY(`id`)
+);
+
 CREATE TABLE `organizations` (
 	`id` varchar(191) NOT NULL,
 	`name` varchar(191) NOT NULL,
+	`description` text NOT NULL,
+	`logo` text NOT NULL,
+	`domain` text NOT NULL,
 	`created_at` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
 	`updated_at` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
-	CONSTRAINT `organizations_id` PRIMARY KEY(`id`)
+	CONSTRAINT `organizations_id` PRIMARY KEY(`id`),
+	CONSTRAINT `organizations__domain__idx` UNIQUE(`domain`)
 );
 
 CREATE TABLE `projects` (
@@ -52,17 +48,6 @@ CREATE TABLE `projects` (
 	`created_at` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
 	`updated_at` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
 	CONSTRAINT `projects_id` PRIMARY KEY(`id`)
-);
-
-CREATE TABLE `sessions` (
-	`id` varchar(191) NOT NULL,
-	`session_token` varchar(191) NOT NULL,
-	`user_id` varchar(191),
-	`expires` datetime NOT NULL,
-	`created_at` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
-	`updated_at` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
-	CONSTRAINT `sessions_id` PRIMARY KEY(`id`),
-	CONSTRAINT `sessions__session_token__idx` UNIQUE(`session_token`)
 );
 
 CREATE TABLE `steps` (
@@ -152,18 +137,6 @@ CREATE TABLE `test_runs` (
 	CONSTRAINT `test_runs_id` PRIMARY KEY(`id`)
 );
 
-CREATE TABLE `users` (
-	`id` varchar(191) NOT NULL,
-	`name` varchar(191),
-	`email` varchar(191) NOT NULL,
-	`email_verified` timestamp,
-	`image` varchar(191),
-	`created_at` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
-	`updated_at` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
-	CONSTRAINT `users_id` PRIMARY KEY(`id`),
-	CONSTRAINT `users__email__idx` UNIQUE(`email`)
-);
-
 CREATE TABLE `users_to_organizations` (
 	`id` varchar(191) NOT NULL,
 	`user_id` varchar(191) NOT NULL,
@@ -172,22 +145,11 @@ CREATE TABLE `users_to_organizations` (
 	CONSTRAINT `users_to_organizations__user_id__org_id__idx` UNIQUE(`user_id`,`org_id`)
 );
 
-CREATE TABLE `verification_tokens` (
-	`id` varchar(191) NOT NULL,
-	`token` varchar(191) NOT NULL,
-	`expires` datetime NOT NULL,
-	`created_at` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
-	`updated_at` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
-	CONSTRAINT `verification_tokens_id` PRIMARY KEY(`id`),
-	CONSTRAINT `verification_tokens__token__idx` UNIQUE(`token`)
-);
-
-CREATE INDEX `accounts__user_id__idx` ON `accounts` (`user_id`);
 CREATE INDEX `comments__run_id__idx` ON `comments` (`suite_run_id`);
 CREATE INDEX `comments__test_id__idx` ON `comments` (`test_run_id`);
 CREATE INDEX `cronjobs__suite_id__idx` ON `cronjobs` (`suite_id`);
+CREATE INDEX `invites__org_id__idx` ON `organization_invites_requests` (`org_id`);
 CREATE INDEX `projects__org_id__idx` ON `projects` (`org_id`);
-CREATE INDEX `sessions__userId__idx` ON `sessions` (`user_id`);
 CREATE INDEX `steps__test_id__idx` ON `steps` (`test_id`);
 CREATE INDEX `steps__test_id__idx` ON `steps_runs` (`test_id`);
 CREATE INDEX `suites__project_id__idx` ON `suites` (`project_id`);

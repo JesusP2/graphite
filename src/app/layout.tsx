@@ -1,15 +1,10 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
 import './globals.css';
 import { Theme, ThemePanel } from '@radix-ui/themes';
 import '@radix-ui/themes/styles.css';
 import { ThemeProvider } from '@/components/theme-provider';
 import { cn } from '@/lib/utils';
-import Link from 'next/link';
-import { buttonVariants } from '@/components/ui/button';
-import { Sidebar } from '@/components/sidebar';
-
-const inter = Inter({ subsets: ['latin'] });
+import { interFont } from '@/lib/fonts';
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -25,14 +20,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={cn(inter.className, 'bg-black overflow-hidden')}>
+      <body className={cn(interFont.className, 'overflow-hidden')}>
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
           enableSystem
           disableTransitionOnChange
         >
-          <Theme appearance="dark">
+          <Theme appearance="light">
             {children}
           </Theme>
         </ThemeProvider>
