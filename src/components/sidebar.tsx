@@ -9,6 +9,7 @@ import { BsActivity } from 'react-icons/bs';
 import { BsWindowStack } from 'react-icons/bs';
 import { HiOutlineUsers } from 'react-icons/hi2';
 import { GoGear } from 'react-icons/go';
+import { TiPin, TiPinOutline } from 'react-icons/ti';
 import {
   Collapsible,
   CollapsibleContent,
@@ -17,13 +18,27 @@ import {
 import { UserDropdown } from '@/components/user-dropdown';
 import { SidebarLink } from '@/components/sidebar-link';
 import { useEffect, useState } from 'react';
+import { Bungee } from 'next/font/google';
 
+const bungee = Bungee({
+  weight: '400',
+  subsets: ['latin'],
+  display: 'swap',
+});
+
+const hideText = (isOpen: boolean) =>
+  cn('duration-200', isOpen ? 'opacity-100 visible' : 'opacity-0 invisible');
 export function Sidebar() {
   const [isOpen, setOpen] = useState(false);
   const [isMouseOver, setMouseOver] = useState(false);
+  const [isSidebarPinned, setPinSidebar] = useState(false);
   const [isUserDropdownOpen, setUserDropdownOpen] = useState(false);
 
   useEffect(() => {
+    if (isSidebarPinned) {
+      setOpen(true);
+      return;
+    }
     if (isUserDropdownOpen || isMouseOver) {
       setOpen(true);
     } else if (!isMouseOver) {
@@ -32,11 +47,11 @@ export function Sidebar() {
       }, 100);
       return () => clearTimeout(timeout);
     }
-  }, [isMouseOver, isUserDropdownOpen]);
+  }, [isMouseOver, isUserDropdownOpen, isSidebarPinned]);
   return (
     <aside
       className={cn(
-        'bg-white rounded-md duration-100 h-screen overflow-hidden p-4 px-2 text-black flex flex-col justify-between group',
+        'bg-white rounded-md duration-200 h-screen overflow-hidden p-4 px-2 text-black flex flex-col justify-between group',
         isOpen ? 'w-72' : 'w-16',
       )}
       onMouseOver={() => {
@@ -47,14 +62,48 @@ export function Sidebar() {
       }}
     >
       <div>
+        <div className="flex justify-between items-start">
+          <div className="flex gap-x-0">
+            <p
+              className={cn(
+                'text-3xl font-bold text-left ml-3 mb-4',
+                bungee.className,
+              )}
+            >
+              G
+            </p>
+            <div
+              className={cn(
+                'text-3xl font-bold text-left w-full mb-4 whitespace-nowrap duration-300',
+                hideText(isOpen),
+                bungee.className,
+              )}
+            >
+              aphite
+            </div>
+          </div>
+          <button onClick={() => setPinSidebar((prev) => !prev)}>
+            {isSidebarPinned ? (
+              <TiPin size={20} className="mt-1" />
+            ) : (
+              <TiPinOutline size={20} className="mt-1" />
+            )}
+          </button>
+        </div>
         <div className="flex flex-col gap-y-2">
           <SidebarLink href="/overview">
             <GoProject size={22} className="min-w-[22px]" />
-            <span className={cn(isOpen ? '' : 'hidden')}>Overview</span>
+            <span
+              className={cn(
+                isOpen ? 'opacity-100 visible' : 'opacity-0 invisible',
+              )}
+            >
+              Overview
+            </span>
           </SidebarLink>
           <SidebarLink href="/projects">
             <BsWindowStack size={20} className="min-w-[20px]" />
-            <span className={cn(isOpen ? '' : 'hidden')}>Projects</span>
+            <span className={hideText(isOpen)}>Projects</span>
           </SidebarLink>
           <Collapsible>
             <CollapsibleTrigger
@@ -68,42 +117,42 @@ export function Sidebar() {
                   size={20}
                   className="min-w-[20px] min-h-[20px]"
                 />
-                <span className={cn(isOpen ? '' : 'hidden')}>Suites</span>
+                <span className={hideText(isOpen)}>Suites</span>
               </span>
               <FiChevronDown
                 size={18}
-                className={cn('rotate-180', isOpen ? '' : 'hidden')}
+                className={cn('rotate-180', hideText(isOpen))}
               />
             </CollapsibleTrigger>
             <CollapsibleContent
               className={cn(
                 'border-l-[2px] border-slate-200 pl-4 ml-[1.3rem]',
-                isOpen ? '' : 'hidden',
+                isOpen ? 'opacity-100 visible' : 'opacity-0 invisible',
               )}
             >
               <SidebarLink href="/suites">
                 <VscGroupByRefType size={20} className="min-w-[20px]" />
-                <span className={cn(isOpen ? '' : 'hidden')}>Suites</span>
+                <span className={hideText(isOpen)}>Suites</span>
               </SidebarLink>
               <SidebarLink href="/suites/runs">
                 <VscVmRunning size={18} className="min-w-[18px]" />
-                <span className={cn(isOpen ? '' : 'hidden')}>Suites runs</span>
+                <span className={hideText(isOpen)}>Suites runs</span>
               </SidebarLink>
             </CollapsibleContent>
           </Collapsible>
           <SidebarLink href="/activity">
             <BsActivity size={20} className="min-w-[20px]" />
-            <span className={cn(isOpen ? '' : 'hidden')}>Activity</span>
+            <span className={hideText(isOpen)}>Activity</span>
           </SidebarLink>
         </div>
         <div className="border-t border-dashed border-stone-300 mt-4 pt-4">
           <SidebarLink href="/users">
             <HiOutlineUsers size={21} className="min-w-[21px]" />
-            <span className={cn(isOpen ? '' : 'hidden')}>Users</span>
+            <span className={hideText(isOpen)}>Users</span>
           </SidebarLink>
           <SidebarLink href="/settings">
             <GoGear size={20} className="min-w-[20px]" />
-            <span className={cn(isOpen ? '' : 'hidden')}>Settings</span>
+            <span className={hideText(isOpen)}>Settings</span>
           </SidebarLink>
         </div>
       </div>
