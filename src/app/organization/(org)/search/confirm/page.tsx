@@ -29,7 +29,7 @@ function InvalidDomainError({ organizationDomain }: { organizationDomain: string
       </p>
       <Link
         className={buttonVariants({ variant: 'default' })}
-        href="/search-organization"
+        href="/organization/search"
       >
         Go back to search
       </Link>
@@ -49,7 +49,7 @@ function AlreadyRequestedError({ organizationDomain }: { organizationDomain: str
       </p>
       <Link
         className={buttonVariants({ variant: 'default' })}
-        href="/search-organization"
+        href="/organization/search"
       >
         Go back to search
       </Link>
@@ -69,7 +69,7 @@ function Success({ organizationDomain }: { organizationDomain: string }) {
       </p>
       <Link
         className={buttonVariants({ variant: 'default' })}
-        href="/search-organization"
+        href="/organization/search"
       >
         Go back to search
       </Link>

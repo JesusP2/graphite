@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { workos, clientId } from "@/lib/auth/workos";
 import { SignJWT } from "jose";
-import { getJwtSecretKey } from "@/lib/auth";
+import { createUser, getJwtSecretKey } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
   // The authorization code returned by AuthKit
@@ -14,10 +14,7 @@ export async function GET(req: NextRequest) {
     });
   }
 
-  const { user } = await workos.userManagement.authenticateWithCode({
-    code,
-    clientId,
-  });
+  const { user, dbUser } = await createUser(code)
 
   const token = await new SignJWT({ user })
     .setProtectedHeader({ alg: "HS256", typ: "JWT" })
@@ -28,10 +25,14 @@ export async function GET(req: NextRequest) {
   const url = new URL(req.url);
   url.searchParams.delete("code");
 
-  url.pathname = "/";
+  const userOrgId = dbUser[0]?.org_id;
+  if (userOrgId) {
+    url.pathname = `/organization/${userOrgId}/overview`;
+  } else {
+    url.pathname = "/organization/search";
+  }
   const response = NextResponse.redirect(url);
 
-  console.log('setting cookie')
   response.cookies.set({
     name: "token",
     value: token,

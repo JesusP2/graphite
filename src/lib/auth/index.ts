@@ -1,16 +1,19 @@
 // This example uses Next.js with React Server Components.
-import { workos, clientId } from "@/lib/auth/workos";
-import { envs } from "../env-vars";
+import { workos, clientId } from '@/lib/auth/workos';
+import { envs } from '../env-vars';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { jwtVerify } from 'jose';
 import type { User } from '@workos-inc/node';
 import crypto from 'crypto';
+import { db } from '../db/connection';
+import { users, usersToOrganizations } from '../db/schema';
+import { eq } from 'drizzle-orm';
 
 export function getAuthorizationUrl() {
   const authorizationUrl = workos.userManagement.getAuthorizationUrl({
     // Specify that we'd like AuthKit to handle the authentication flow
-    provider: "authkit",
+    provider: 'authkit',
 
     // The callback endpoint that WorkOS will redirect to after a user authenticates
     redirectUri: envs.GOOGLE_CALLBACK_URL,
@@ -31,7 +34,7 @@ export function getAuthorizationUrl() {
 */
 
 export function getJwtSecretKey() {
-  const secret = envs.JWT_SECRET_KEY
+  const secret = envs.JWT_SECRET_KEY;
 
   if (!secret) {
     throw new Error('JWT_SECRET_KEY is not set');
@@ -71,4 +74,24 @@ export async function getUser(): Promise<{
 export async function signOut() {
   cookies().delete('token');
   redirect('/using-hosted-authkit/with-session');
+}
+
+export async function getDbUser(userId: string) {
+  return db
+    .select({ id: users.id, org_id: usersToOrganizations.orgId, role: usersToOrganizations.role })
+    .from(users)
+    .where(eq(users.id, userId))
+    .leftJoin(usersToOrganizations, eq(usersToOrganizations.userId, userId));
+}
+export async function createUser(code: string) {
+  const { user } = await workos.userManagement.authenticateWithCode({
+    code,
+    clientId,
+  });
+  let dbUser = await getDbUser(user.id);
+  if (!dbUser.length) {
+    await db.insert(users).values({ id: user.id });
+    dbUser = await getDbUser(user.id);
+  }
+  return { user, dbUser };
 }

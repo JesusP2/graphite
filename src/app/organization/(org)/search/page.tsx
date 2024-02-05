@@ -3,6 +3,7 @@ import { cn } from '@/lib/utils';
 import { interFont } from '@/lib/fonts';
 import { HiMagnifyingGlass } from 'react-icons/hi2';
 import { ConfirmRequest } from '@/components/confirm-search';
+import { sendOrganizationRequest } from '@/lib/actions/send-organization-request';
 
 export default function Page() {
   return (
@@ -10,7 +11,7 @@ export default function Page() {
       <h1 className={cn('text-xl font-bold', interFont.className)}>
         Search organization
       </h1>
-      <form action="/organization/request" method="POST" name="search-org" id="search-org">
+      <form action={sendOrganizationRequest} name="search-org" id="search-org">
         <div className="relative max-w-lg w-full my-4">
           <Input
             name="organizationDomain"

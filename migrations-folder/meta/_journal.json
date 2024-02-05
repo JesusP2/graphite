@@ -15,6 +15,27 @@
       "when": 1707022942605,
       "tag": "0001_fuzzy_retro_girl",
       "breakpoints": false
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1707078147833,
+      "tag": "0002_daffy_meltdown",
+      "breakpoints": false
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1707086753458,
+      "tag": "0003_fixed_mister_sinister",
+      "breakpoints": false
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1707089296852,
+      "tag": "0004_strange_skreet",
+      "breakpoints": false
     }
   ]
 }
