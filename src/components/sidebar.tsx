@@ -19,11 +19,16 @@ import { UserDropdown } from '@/components/user-dropdown';
 import { SidebarLink } from '@/components/sidebar-link';
 import { useEffect, useState } from 'react';
 import { bungeeFont } from '@/lib/fonts';
+import { MyOrganizationsDialog } from './my-organizations';
+import { UserOrganization } from '@/lib/db/queries';
 
 const hideText = (isOpen: boolean) =>
   cn(isOpen ? 'opacity-100 visible' : 'opacity-0 invisible');
 
-export function Sidebar({ organization }: { organization: string }) {
+export function Sidebar({
+  organizationDomain,
+  userOrganizations,
+}: { organizationDomain: string; userOrganizations: UserOrganization[] }) {
   const [isOpen, setOpen] = useState(false);
   const [isMouseOver, setMouseOver] = useState(false);
   const [isSidebarPinned, setPinSidebar] = useState(false);
@@ -46,7 +51,7 @@ export function Sidebar({ organization }: { organization: string }) {
   return (
     <aside
       className={cn(
-        'bg-white rounded-md duration-200 h-screen overflow-hidden p-4 px-2 text-black flex flex-col justify-between group',
+        'bg-white rounded-md duration-200 h-screen overflow-hidden p-4 px-2 text-black flex flex-col justify-between group shadow-lg shadow-neutral-400',
         isOpen ? 'w-72' : 'w-16',
       )}
       onMouseOver={() => {
@@ -86,7 +91,7 @@ export function Sidebar({ organization }: { organization: string }) {
           </button>
         </div>
         <div className="flex flex-col gap-y-2">
-          <SidebarLink href={`/organization/${organization}/overview`}>
+          <SidebarLink href={`/organization/${organizationDomain}/overview`}>
             <GoProject size={22} className="min-w-[22px]" />
             <span
               className={cn(
@@ -96,7 +101,7 @@ export function Sidebar({ organization }: { organization: string }) {
               Overview
             </span>
           </SidebarLink>
-          <SidebarLink href={`/organization/${organization}/projects`}>
+          <SidebarLink href={`/organization/${organizationDomain}/projects`}>
             <BsWindowStack size={20} className="min-w-[20px]" />
             <span className={hideText(isOpen)}>Projects</span>
           </SidebarLink>
@@ -125,36 +130,37 @@ export function Sidebar({ organization }: { organization: string }) {
                 isOpen ? 'opacity-100 visible' : 'opacity-0 invisible',
               )}
             >
-              <SidebarLink href={`/organization/${organization}/suites`}>
+              <SidebarLink href={`/organization/${organizationDomain}/suites`}>
                 <VscGroupByRefType size={20} className="min-w-[20px]" />
                 <span className={hideText(isOpen)}>Suites</span>
               </SidebarLink>
-              <SidebarLink href={`/organization/${organization}/suites/runs`}>
+              <SidebarLink href={`/organization/${organizationDomain}/suites/runs`}>
                 <VscVmRunning size={18} className="min-w-[18px]" />
                 <span className={hideText(isOpen)}>Suites runs</span>
               </SidebarLink>
             </CollapsibleContent>
           </Collapsible>
-          <SidebarLink href={`/organization/${organization}/activity`}>
+          <SidebarLink href={`/organization/${organizationDomain}/activity`}>
             <BsActivity size={20} className="min-w-[20px]" />
             <span className={hideText(isOpen)}>Activity</span>
           </SidebarLink>
         </div>
         <div className="border-t border-dashed border-stone-300 mt-4 pt-4">
-          <SidebarLink href={`/organization/${organization}/users`}>
+          <SidebarLink href={`/organization/${organizationDomain}/users`}>
             <HiOutlineUsers size={21} className="min-w-[21px]" />
             <span className={hideText(isOpen)}>Users</span>
           </SidebarLink>
-          <SidebarLink href={`/organization/${organization}/settings`}>
+          <SidebarLink href={`/organization/${organizationDomain}/settings`}>
             <GoGear size={20} className="min-w-[20px]" />
             <span className={hideText(isOpen)}>Settings</span>
           </SidebarLink>
         </div>
         <div className="border-t border-dashed border-stone-300 mt-4 pt-4">
-          <SidebarLink href="/users">
-            <HiOutlineUsers size={21} className="min-w-[21px]" />
-            <span className={hideText(isOpen)}>Users</span>
-          </SidebarLink>
+          <MyOrganizationsDialog
+            isSidebarOpen={isOpen}
+            organizationDomain={organizationDomain}
+            userOrganizations={userOrganizations}
+          />
         </div>
       </div>
       <div className="border-t border-dashed border-stone-300 mt-4 pt-4">

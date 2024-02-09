@@ -74,3 +74,20 @@
     @apply bg-background text-foreground;
   }
 }
+
+input:not(:focus):not(:placeholder-shown):invalid {
+  border-color: red;
+}
+input:not(:focus):not(:placeholder-shown):invalid ~ .input-label {
+  color: red;
+}
+
+.my-organizations-list-dialog::-webkit-scrollbar {
+  width: 5px;
+}
+
+/* Handle on hover */
+.my-organizations-list-dialog:hover::-webkit-scrollbar-thumb {
+  background-color: #e4e4e7;
+  border-radius: 10px;
+}

@@ -8,7 +8,7 @@ import {
 import { notAllowedOrganizationDomains } from '@/lib/not-allowed-orgs';
 import { and, eq, or } from 'drizzle-orm';
 import { redirect } from 'next/navigation';
-import crypto from 'node:crypto';
+import { ulid } from 'ulid';
 
 export async function sendOrganizationRequest(formData: FormData) {
   'use server';
@@ -70,7 +70,7 @@ export async function sendOrganizationRequest(formData: FormData) {
     );
   }
   await db.insert(organizationInvites).values({
-    id: crypto.randomUUID(),
+    id: ulid(),
     userId: user.id,
     domain: organizationDomain || '',
     type: 'Request',

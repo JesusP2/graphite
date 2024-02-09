@@ -25,9 +25,9 @@ export async function GET(req: NextRequest) {
   const url = new URL(req.url);
   url.searchParams.delete("code");
 
-  const userOrgId = dbUser[0]?.org_id;
-  if (userOrgId) {
-    url.pathname = `/organization/${userOrgId}/overview`;
+  const userOrgDomain = dbUser[0]?.domain;
+  if (userOrgDomain) {
+    url.pathname = `/organization/${userOrgDomain}/overview`;
   } else {
     url.pathname = "/organization/search";
   }

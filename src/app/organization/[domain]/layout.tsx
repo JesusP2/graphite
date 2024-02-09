@@ -2,10 +2,8 @@ import type { Metadata } from 'next';
 import '@radix-ui/themes/styles.css';
 import { Sidebar } from '@/components/sidebar';
 import { getUser } from '@/lib/auth';
-import { db } from '@/lib/db/connection';
-import { usersToOrganizations } from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
 import { redirect } from 'next/navigation';
+import { getUserOrganizations } from '@/lib/db/queries';
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -17,19 +15,19 @@ export default async function RootLayout({
   params,
 }: Readonly<{
   children: React.ReactNode;
-  params: { slug: string };
+  params: { domain: string };
 }>) {
   const { user } = await getUser();
-  const userOrganizations = await db
-    .select({ orgId: usersToOrganizations.orgId })
-    .from(usersToOrganizations)
-    .where(eq(usersToOrganizations.userId, user!.id));
+  const userOrganizations = await getUserOrganizations(user?.id || '');
+  const defaultUserOrgDomain = userOrganizations[0]?.domain;
   if (!userOrganizations.length) {
     redirect('/organization/search');
+  } else if (!userOrganizations.find((org) => org.domain === params.domain)) {
+    redirect(`/organization/${defaultUserOrgDomain}/overview`);
   }
   return (
     <>
-      <Sidebar organization={params.slug} />
+      <Sidebar organizationDomain={params.domain} userOrganizations={userOrganizations} />
       {children}
     </>
   );

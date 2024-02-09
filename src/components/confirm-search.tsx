@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
+  DialogDefaultClose,
   DialogDescription,
   DialogFooter,
   DialogHeader,
@@ -40,6 +41,7 @@ export function ConfirmRequest() {
             Cancel
           </Button>
         </DialogFooter>
+        <DialogDefaultClose />
       </DialogContent>
     </Dialog>
   );

@@ -5,10 +5,9 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { jwtVerify } from 'jose';
 import type { User } from '@workos-inc/node';
-import crypto from 'crypto';
 import { db } from '../db/connection';
-import { users, usersToOrganizations } from '../db/schema';
-import { eq } from 'drizzle-orm';
+import { users } from '../db/schema';
+import { getUserOrganizations } from '../db/queries';
 
 export function getAuthorizationUrl() {
   const authorizationUrl = workos.userManagement.getAuthorizationUrl({
@@ -76,22 +75,15 @@ export async function signOut() {
   redirect('/using-hosted-authkit/with-session');
 }
 
-export async function getDbUser(userId: string) {
-  return db
-    .select({ id: users.id, org_id: usersToOrganizations.orgId, role: usersToOrganizations.role })
-    .from(users)
-    .where(eq(users.id, userId))
-    .leftJoin(usersToOrganizations, eq(usersToOrganizations.userId, userId));
-}
 export async function createUser(code: string) {
   const { user } = await workos.userManagement.authenticateWithCode({
     code,
     clientId,
   });
-  let dbUser = await getDbUser(user.id);
+  let dbUser = await getUserOrganizations(user.id);
   if (!dbUser.length) {
     await db.insert(users).values({ id: user.id });
-    dbUser = await getDbUser(user.id);
+    dbUser = await getUserOrganizations(user.id);
   }
   return { user, dbUser };
 }
