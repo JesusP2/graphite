@@ -2,15 +2,13 @@
 import { getAuthorizationUrl, getUser } from '@/lib/auth';
 import { db } from '@/lib/db/connection';
 import { organizations, usersToOrganizations } from '@/lib/db/schema';
-import { notAllowedOrganizationDomains } from '@/lib/not-allowed-orgs';
+import { notAllowedOrganizationDomains, organizationDomainValidCharactersRegex } from '@/lib/utils';
 import { eq } from 'drizzle-orm';
-import { formatRevalidate } from 'next/dist/server/lib/revalidate';
 import { redirect } from 'next/navigation';
 import { ulid } from 'ulid';
 import {
   Input,
   custom,
-  includes,
   maxLength,
   minLength,
   object,
@@ -22,20 +20,17 @@ import {
 export const createInitialState = () => ({
   organizationName: {
     value: '',
-    error: null,
+    error: null as string | null,
   },
   organizationDomain: {
     value: '',
-    error: null,
+    error: null as string | null,
   },
   organizationDescription: {
     value: '',
-    error: null,
+    error: null as string | null,
   },
 });
-
-const validCharacters = 'abcdefghijklmnopqrstuvwxyz0123456789-_';
-const validCharactersRegex = new RegExp(`^[${validCharacters}]+$`);
 
 const schema = object({
   organizationName: string("Organization name can't be empty", [
@@ -48,10 +43,9 @@ const schema = object({
     maxLength(30, 'Organization domain must be at most 30 characters long'),
     custom(
       (value) =>
-        !(
-          validCharactersRegex.test(value) ||
+          !organizationDomainValidCharactersRegex.test(value) ||
           notAllowedOrganizationDomains.includes(value)
-        ),
+        ,
       'Invalid domain',
     ),
   ]),
@@ -72,7 +66,6 @@ export async function createOrganization(
   },
   formData: FormData,
 ) {
-  console.log('hit');
   const { output, success, issues } = safeParse(schema, {
     organizationDomain: formData.get('organizationDomain'),
     organizationName: formData.get('organizationName'),
@@ -94,20 +87,10 @@ export async function createOrganization(
   const { organizationDomain, organizationName, organizationDescription } =
     output;
 
-  const newValue = {
-    organizationDomain: {
-      value: organizationDomain,
-      error: null as null | string,
-    },
-    organizationName: {
-      value: organizationName,
-      error: null as null | string,
-    },
-    organizationDescription: {
-      value: organizationDescription,
-      error: null as null | string,
-    },
-  };
+  const newValue = createInitialState();
+  newValue.organizationDomain.value = organizationDomain;
+  newValue.organizationName.value = organizationName;
+  newValue.organizationDescription.value = organizationDescription;
 
   const { user, isAuthenticated } = await getUser();
   if (!isAuthenticated || !user) {

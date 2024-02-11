@@ -1,3 +1,4 @@
+'use server';
 import { getAuthorizationUrl, getUser } from '@/lib/auth';
 import { db } from '@/lib/db/connection';
 import {
@@ -5,20 +6,65 @@ import {
   organizations,
   usersToOrganizations,
 } from '@/lib/db/schema';
-import { notAllowedOrganizationDomains } from '@/lib/not-allowed-orgs';
+import { notAllowedOrganizationDomains, organizationDomainValidCharactersRegex } from '@/lib/utils';
 import { and, eq, or } from 'drizzle-orm';
 import { redirect } from 'next/navigation';
 import { ulid } from 'ulid';
+import { Input, custom, maxLength, minLength, object, safeParse, string, toLowerCase } from 'valibot';
 
-export async function sendOrganizationRequest(formData: FormData) {
-  'use server';
-  const organizationDomain = formData.get('organizationDomain') as string;
+export const createInitialState = () => ({
+  organizationDomain: {
+    value: '',
+    error: null as string | null,
+  },
+})
+
+const schema = object({
+  organizationDomain: string("Organization domain can't be empty", [
+    toLowerCase(),
+    minLength(10, 'Organization domain must be at least 10 characters long'),
+    maxLength(30, 'Organization domain must be at most 30 characters long'),
+    custom(
+      (value) =>
+          organizationDomainValidCharactersRegex.test(value) ||
+          !notAllowedOrganizationDomains.includes(value)
+        ,
+      'Invalid domain',
+    ),
+  ]),
+})
+
+export async function sendOrganizationRequest(
+  values: {
+    [K in keyof Input<typeof schema>]: { value: string; error: string | null };
+  },
+  formData: FormData
+) {
+  console.log('idk:', organizationDomainValidCharactersRegex.test(formData.get('organizationDomain') as string))
+  console.log('idk:', notAllowedOrganizationDomains.includes(formData.get('organizationDomain') as string))
+  const { output, success, issues } = safeParse(schema, {
+    organizationDomain: formData.get('organizationDomain') as string,
+  })
+  if (!success) {
+    console.log(issues)
+    const newValue: any = createInitialState();
+    issues.forEach((issue) => {
+      const path = issue.path?.[0];
+      if (!path) return;
+      const { key, value } = path;
+      newValue.organizationDomain.value = value;
+      newValue.organizationDomain.error = issue.message;
+    });
+    return newValue;
+  }
+  const { organizationDomain } = output
+  const newValue = createInitialState();
+  newValue.organizationDomain.value = organizationDomain;
+
   const { user, isAuthenticated } = await getUser();
   if (!isAuthenticated || !user) {
     const authUrl = getAuthorizationUrl();
     return redirect(authUrl);
-  } else if (notAllowedOrganizationDomains.includes(organizationDomain)) {
-    return redirect('/organization/search/confirm?error=invalid-domain');
   }
   const organizationsStored = await db
     .select({
@@ -29,9 +75,8 @@ export async function sendOrganizationRequest(formData: FormData) {
     .where(eq(organizations.domain, organizationDomain))
     .limit(1);
   if (!organizationsStored.length) {
-    return redirect(
-      `/organization/search/confirm?error=not-found&organizationDomain=${organizationDomain}`,
-    );
+    newValue.organizationDomain.error = 'Already exists';
+    return newValue;
   }
 
   const usersToOrganizationsStored = await db
@@ -44,9 +89,8 @@ export async function sendOrganizationRequest(formData: FormData) {
       ),
     );
   if (usersToOrganizationsStored.length) {
-    return redirect(
-      `/organization/search/confirm?error=unauthorized&organizationDomain=${organizationDomain}`,
-    );
+    newValue.organizationDomain.error = 'Already member';
+    return newValue;
   }
 
   const organizationsInvitesStored = await db
@@ -65,9 +109,8 @@ export async function sendOrganizationRequest(formData: FormData) {
       ),
     );
   if (organizationsInvitesStored.length) {
-    return redirect(
-      `/organization/search/confirm?error=already-requested&organizationDomain=${organizationDomain}`,
-    );
+    newValue.organizationDomain.error = 'Already requested';
+    return newValue;
   }
   await db.insert(organizationInvites).values({
     id: ulid(),

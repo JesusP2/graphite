@@ -5,7 +5,7 @@ import {
   organizations,
   usersToOrganizations,
 } from '@/lib/db/schema';
-import { notAllowedOrganizationDomains } from '@/lib/not-allowed-orgs';
+import { notAllowedOrganizationDomains } from '@/lib/utils';
 import { and, eq, or } from 'drizzle-orm';
 import { redirect } from 'next/navigation';
 import { ulid } from 'ulid';

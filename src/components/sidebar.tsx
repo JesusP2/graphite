@@ -64,15 +64,15 @@ export function Sidebar({
       <div>
         <div className="flex justify-between items-start">
           <div className="flex gap-x-0">
-            <p
+            <span
               className={cn(
                 'text-3xl font-bold text-left ml-3 mb-4',
                 bungeeFont.className,
               )}
             >
               G
-            </p>
-            <div
+            </span>
+            <span
               className={cn(
                 'text-3xl font-bold text-left w-full mb-4 whitespace-nowrap duration-300',
                 hideText(isOpen),
@@ -80,7 +80,7 @@ export function Sidebar({
               )}
             >
               aphite
-            </div>
+            </span>
           </div>
           <button onClick={() => setPinSidebar((prev) => !prev)}>
             {isSidebarPinned ? (
