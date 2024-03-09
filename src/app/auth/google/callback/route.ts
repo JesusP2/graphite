@@ -1,8 +1,8 @@
 // Create a Route Handler `app/callback/route.js`
 import { NextRequest, NextResponse } from "next/server";
-import { workos, clientId } from "@/lib/auth/workos";
 import { SignJWT } from "jose";
-import { createUser, getJwtSecretKey } from "@/lib/auth";
+import { createUser } from "@/lib/auth/user";
+import { getJwtSecretKey } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
   // The authorization code returned by AuthKit

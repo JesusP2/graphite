@@ -1,11 +1,11 @@
-import { connect } from "@planetscale/database";
-import { drizzle } from "drizzle-orm/planetscale-serverless";
+import pkg from 'pg';
+import { drizzle } from 'drizzle-orm/node-postgres';
+import * as schema from './schema';
 import { envs } from "../env-vars";
+const { Pool } = pkg;
 
-const connection = connect({
-  host: envs.DB_HOST,
-  username: envs.DB_USERNAME,
-  password: envs.DB_PASSWORD,
+export const pool = new Pool({
+  connectionString: envs.DB_URL,
 });
-
-export const db = drizzle(connection);
+export const db = drizzle(pool, { schema });
+export type DBSchema = typeof schema;

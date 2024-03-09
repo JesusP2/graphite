@@ -1,26 +1,28 @@
 import {
-  index,
-  int,
-  boolean,
-  mysqlTable,
-  text,
   timestamp,
-  uniqueIndex,
   varchar,
-  mysqlEnum,
-} from 'drizzle-orm/mysql-core';
+  integer,
+  index,
+  text,
+  boolean,
+  uniqueIndex,
+  pgEnum
+} from 'drizzle-orm/pg-core';
+import { pgTableCreator } from 'drizzle-orm/pg-core';
 
-export const users = mysqlTable(
+const pgTable = pgTableCreator((name) => `graphite_${name}`)
+
+export const users = pgTable(
   'users',
   {
     id: varchar('id', { length: 191 }).primaryKey().notNull(),
     avatar: text('avatar'),
-    createdAt: timestamp('created_at').notNull().defaultNow().onUpdateNow(),
-    updatedAt: timestamp('updated_at').notNull().defaultNow().onUpdateNow(),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
   },
 );
 
-export const organizations = mysqlTable(
+export const organizations = pgTable(
   'organizations',
   {
     id: varchar('id', { length: 191 }).primaryKey().notNull(),
@@ -28,8 +30,8 @@ export const organizations = mysqlTable(
     description: text('description').notNull(),
     logo: text('logo').notNull(),
     domain: varchar('domain', { length: 100 }).notNull().unique(),
-    createdAt: timestamp('created_at').notNull().defaultNow().onUpdateNow(),
-    updatedAt: timestamp('updated_at').notNull().defaultNow().onUpdateNow(),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
   },
   (organizations) => ({
     domainIndex: uniqueIndex('organizations__domain__idx').on(
@@ -38,16 +40,20 @@ export const organizations = mysqlTable(
   }),
 );
 
-export const usersToOrganizations = mysqlTable(
+export const usersToOrganizations = pgTable(
   'users_to_organizations',
   {
     id: varchar('id', { length: 191 }).primaryKey().notNull(),
     userId: varchar('user_id', { length: 191 }).notNull(),
     orgId: varchar('org_id', { length: 191 }).notNull(),
-    status: mysqlEnum('status', ['Blocked', 'Active', 'Disabled']).notNull(),
-    role: mysqlEnum('role', ['Admin', 'Owner', 'Member']).notNull(),
-    createdAt: timestamp('created_at').notNull().defaultNow().onUpdateNow(),
-    updatedAt: timestamp('updated_at').notNull().defaultNow().onUpdateNow(),
+    status: pgEnum('varchar', [
+      'Blocked', 'Active', 'Disabled'
+    ])('status').notNull(),
+    role: pgEnum('varchar', [
+      'Admin', 'Owner', 'Member'
+    ])('role').notNull(),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
   },
   (usersToOrganizations) => ({
     usersToOrganizationsIndex: uniqueIndex(
@@ -56,16 +62,20 @@ export const usersToOrganizations = mysqlTable(
   }),
 );
 
-export const organizationInvites = mysqlTable(
+export const organizationInvites = pgTable(
   'organization_invites_requests',
   {
     id: varchar('id', { length: 191 }).primaryKey().notNull(),
     userId: varchar('user_id', { length: 191 }).notNull(),
     domain: varchar('domain', { length: 191 }).notNull().unique(),
-    type: mysqlEnum('type', ['Invite', 'Request']).notNull(),
-    status: mysqlEnum('status', ['Pending', 'Approved', 'Rejected']).notNull(),
-    createdAt: timestamp('created_at').notNull().defaultNow().onUpdateNow(),
-    updatedAt: timestamp('updated_at').notNull().defaultNow().onUpdateNow(),
+    type: pgEnum('varchar', [
+      'Invite', 'Request'
+    ])('type').notNull(),
+    status: pgEnum('varchar', [
+      'Pending', 'Approved', 'Rejected'
+    ])('status').notNull(),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
   },
   (organizationInvites) => ({
     organizationIndex: uniqueIndex('invites__domain__idx').on(
@@ -74,14 +84,14 @@ export const organizationInvites = mysqlTable(
   }),
 );
 
-export const projects = mysqlTable(
+export const projects = pgTable(
   'projects',
   {
     id: varchar('id', { length: 191 }).primaryKey().notNull(),
     name: varchar('name', { length: 191 }).notNull(),
     orgId: varchar('org_id', { length: 191 }).notNull(),
-    createdAt: timestamp('created_at').notNull().defaultNow().onUpdateNow(),
-    updatedAt: timestamp('updated_at').notNull().defaultNow().onUpdateNow(),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
   },
 
   (projects) => ({
@@ -89,28 +99,28 @@ export const projects = mysqlTable(
   }),
 );
 
-export const suites = mysqlTable(
+export const suites = pgTable(
   'suites',
   {
     id: varchar('id', { length: 191 }).primaryKey().notNull(),
     name: varchar('name', { length: 191 }).notNull(),
     projectId: varchar('project_id', { length: 191 }).notNull(),
-    createdAt: timestamp('created_at').notNull().defaultNow().onUpdateNow(),
-    updatedAt: timestamp('updated_at').notNull().defaultNow().onUpdateNow(),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
   },
   (suites) => ({
     projectIdIndex: index('suites__project_id__idx').on(suites.projectId),
   }),
 );
 
-export const tests = mysqlTable(
+export const tests = pgTable(
   'tests',
   {
     id: varchar('id', { length: 191 }).primaryKey().notNull(),
     name: varchar('name', { length: 191 }).notNull(),
     suiteId: varchar('suite_id', { length: 191 }).notNull(),
-    createdAt: timestamp('created_at').notNull().defaultNow().onUpdateNow(),
-    updatedAt: timestamp('updated_at').notNull().defaultNow().onUpdateNow(),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
   },
   (tests) => ({
     suiteIdIndex: index('tests__suite_id__idx').on(tests.suiteId),
@@ -129,50 +139,54 @@ const actions = [
   'Refresh',
 ] as const;
 
-export const steps = mysqlTable(
+export const steps = pgTable(
   'steps',
   {
     id: varchar('id', { length: 191 }).primaryKey().notNull(),
     testId: varchar('test_id', { length: 191 }).notNull(),
-    stepNumber: int('step_number').notNull(),
+    stepNumber: integer('step_number').notNull(),
     selector: text('selector'),
-    action: mysqlEnum('action', actions).notNull(),
-    click: mysqlEnum('click', ['Left', 'Middle', 'Right', 'Double Left']),
+    action: pgEnum('varchar', actions)('action').notNull(),
+    click: pgEnum('varchar',['Left', 'Middle', 'Right', 'Double Left'])('click').notNull(),
     assign: text('assign'),
-    keypress: mysqlEnum('keypress', ['Enter', 'Tab', 'Escape', 'Space']),
+    keypress: pgEnum('varchar', [
+      'Enter', 'Tab', 'Escape', 'Space'
+    ])('keypress').notNull(),
     goToUrl: text('go_to_url'),
-    pause: int('pause'),
+    pause: integer('pause'),
     isOptional: boolean('is_optional').notNull(),
-    createdAt: timestamp('created_at').notNull().defaultNow().onUpdateNow(),
-    updatedAt: timestamp('updated_at').notNull().defaultNow().onUpdateNow(),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
   },
   (steps) => ({
     testIdIndex: index('steps__test_id__idx').on(steps.testId),
   }),
 );
 
-export const stepsRuns = mysqlTable(
+export const stepsRuns = pgTable(
   'steps_runs',
   {
     id: varchar('id', { length: 191 }).primaryKey().notNull(),
     stepId: varchar('step_id', { length: 191 }).notNull(),
     testId: varchar('test_id', { length: 191 }).notNull(),
     testRunId: varchar('test_run_id', { length: 191 }).notNull(),
-    stepNumber: int('step_number').notNull(),
+    stepNumber: integer('step_number').notNull(),
     selector: text('selector'),
-    action: mysqlEnum('action', actions).notNull(),
-    click: mysqlEnum('click', ['Left', 'Middle', 'Right', 'Double Left']),
+    action: pgEnum('varchar', actions)('action').notNull(),
+    click: pgEnum('varchar',['Left', 'Middle', 'Right', 'Double Left'])('click').notNull(),
     assign: text('assign'),
-    keypress: mysqlEnum('keypress', ['Enter', 'Tab', 'Escape', 'Space']),
+    keypress: pgEnum('varchar', [
+      'Enter', 'Tab', 'Escape', 'Space'
+    ])('keypress').notNull(),
     goToUrl: text('go_to_url'),
-    pause: int('pause'),
-    status: mysqlEnum('status', ['Passed', 'Failed', 'Unknown']).notNull(),
+    pause: integer('pause'),
+    status: pgEnum('varchar',['Passed', 'Failed', 'Unknown'])('status').notNull(),
     isOptional: boolean('is_optional').notNull(),
-    createdAt: timestamp('created_at').notNull().defaultNow().onUpdateNow(),
-    updatedAt: timestamp('updated_at').notNull().defaultNow().onUpdateNow(),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
   },
   (steps) => ({
-    testIdIndex: index('steps__test_id__idx').on(steps.testId),
+    testIdIndex: index('steps_runs__test_id__idx').on(steps.testId),
     testRunIdIndex: uniqueIndex('steps_runs__test_run_id__step_id').on(
       steps.testRunId,
       steps.stepId,
@@ -180,7 +194,7 @@ export const stepsRuns = mysqlTable(
   }),
 );
 
-export const testsRuns = mysqlTable(
+export const testsRuns = pgTable(
   'test_runs',
   {
     id: varchar('id', { length: 191 }).primaryKey().notNull(),
@@ -188,68 +202,63 @@ export const testsRuns = mysqlTable(
     testId: varchar('test_id', { length: 191 }).notNull(),
     suiteId: varchar('suite_id', { length: 191 }).notNull(),
     suiteRunId: varchar('suite_run_id', { length: 191 }).notNull(),
-    status: mysqlEnum('status', ['Passed', 'Failed', 'Unknown']).notNull(),
-    createdAt: timestamp('created_at').notNull().defaultNow().onUpdateNow(),
-    updatedAt: timestamp('updated_at').notNull().defaultNow().onUpdateNow(),
+    status: pgEnum('varchar',['Passed', 'Failed', 'Unknown'])('status').notNull(),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
   },
   (tests) => ({
-    suiteIdIndex: index('tests__suite_id__idx').on(tests.suiteId),
-    suiteRunId: index('tests__suite_run_id__idx').on(tests.suiteRunId),
+    suiteIdIndex: index('tests_runs__suite_id__idx').on(tests.suiteId),
+    suiteRunId: index('tests_runs__suite_run_id__idx').on(tests.suiteRunId),
   }),
 );
 
-export const suitesRuns = mysqlTable(
+export const suitesRuns = pgTable(
   'suites_runs',
   {
     id: varchar('id', { length: 191 }).primaryKey().notNull(),
     name: varchar('name', { length: 191 }).notNull(),
     suiteId: varchar('suite_id', { length: 191 }).notNull(),
     triggeredBy: varchar('triggered_by', { length: 191 }).notNull(),
-    duration: int('duration').notNull(),
-    status: mysqlEnum('status', [
-      'running',
-      'passed',
-      'failed',
-      'aborted',
-    ]).notNull(),
+    duration: integer('duration').notNull(),
+    status: pgEnum('varchar',['running', 'passed', 'failed', 'aborted'])('status').notNull(),
     startURL: text('start_url').notNull(),
     endURL: text('end_url').notNull(),
     videoURL: text('video_url').notNull(),
     userAgent: text('user_agent').notNull(),
     viewPort: text('view_port').notNull(),
-    testsPassed: int('tests_passed').notNull(),
-    testsFailed: int('tests_failed').notNull(),
-    createdAt: timestamp('created_at').notNull().defaultNow().onUpdateNow(),
-    completedAt: timestamp('completed_at').notNull().defaultNow().onUpdateNow(),
+    testsPassed: integer('tests_passed').notNull(),
+    testsFailed: integer('tests_failed').notNull(),
+    createdAt: timestamp('created_at').defaultNow(),
+    completedAt: timestamp('completed_at').defaultNow(),
   },
   (runs) => ({
     suiteIndex: index('runs__suite_id__idx').on(runs.suiteId),
   }),
 );
-export const cronjobs = mysqlTable(
+export const cronjobs = pgTable(
   'cronjobs',
   {
     id: varchar('id', { length: 191 }).primaryKey().notNull(),
     suiteId: varchar('suite_id', { length: 191 }).notNull(),
     cron: varchar('cron', { length: 191 }).notNull(),
     enabled: boolean('enabled').notNull().default(false),
-    createdAt: timestamp('created_at').notNull().defaultNow().onUpdateNow(),
-    updatedAt: timestamp('updated_at').notNull().defaultNow().onUpdateNow(),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
   },
   (crobjobs) => ({
     suiteIndex: index('cronjobs__suite_id__idx').on(crobjobs.suiteId),
   }),
 );
 
-export const comments = mysqlTable(
+export const comments = pgTable(
   'comments',
   {
     id: varchar('id', { length: 191 }).primaryKey().notNull(),
     suiteRunId: varchar('suite_run_id', { length: 191 }),
     testRunId: varchar('test_run_id', { length: 191 }),
     userId: varchar('user_id', { length: 191 }).notNull(),
-    createdAt: timestamp('created_at').notNull().defaultNow().onUpdateNow(),
-    updateAt: timestamp('updated_at').notNull().defaultNow().onUpdateNow(),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
   },
   (comments) => ({
     runIndex: index('comments__run_id__idx').on(comments.suiteRunId),

@@ -5,9 +5,6 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { jwtVerify } from 'jose';
 import type { User } from '@workos-inc/node';
-import { db } from '../db/connection';
-import { users } from '../db/schema';
-import { getUserOrganizations } from '../db/queries';
 
 export function getAuthorizationUrl() {
   const authorizationUrl = workos.userManagement.getAuthorizationUrl({
@@ -73,17 +70,4 @@ export async function getUser(): Promise<{
 export async function signOut() {
   cookies().delete('token');
   redirect('/using-hosted-authkit/with-session');
-}
-
-export async function createUser(code: string) {
-  const { user } = await workos.userManagement.authenticateWithCode({
-    code,
-    clientId,
-  });
-  let dbUser = await getUserOrganizations(user.id);
-  if (!dbUser.length) {
-    await db.insert(users).values({ id: user.id });
-    dbUser = await getUserOrganizations(user.id);
-  }
-  return { user, dbUser };
 }
