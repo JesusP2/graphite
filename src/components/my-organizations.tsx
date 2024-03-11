@@ -10,26 +10,20 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { cn } from '@/lib/utils';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { SidebarLink } from './sidebar-link';
 import { HiOutlineUsers } from 'react-icons/hi2';
 import Link from 'next/link';
-import { X } from 'lucide-react';
+import { FiX } from 'react-icons/fi';
 import { UserOrganization } from '@/lib/db/queries';
 import { OrganizationItem } from './organization-item';
 import { IoAddCircleOutline } from 'react-icons/io5';
 
-const hideText = (isOpen: boolean) =>
-  cn(isOpen ? 'opacity-100 visible' : 'opacity-0 invisible');
-
 export function MyOrganizationsDialog({
-  isSidebarOpen,
   organizationDomain,
   userOrganizations,
 }: {
-  isSidebarOpen: boolean;
   organizationDomain: string;
   userOrganizations: UserOrganization[];
 }) {
@@ -46,7 +40,7 @@ export function MyOrganizationsDialog({
       <DialogTrigger asChild>
         <SidebarLink href={pathname + '?isMyOrganizationsOpen=true'}>
           <HiOutlineUsers size={21} className="min-w-[21px]" />
-          <span className={hideText(isSidebarOpen)}>My organizations</span>
+          <span className="sidebar-text">My organizations</span>
         </SidebarLink>
       </DialogTrigger>
       <DialogContent className="w-96">
@@ -85,7 +79,7 @@ export function MyOrganizationsDialog({
             href={pathname}
             className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
           >
-            <X className="h-4 w-4" />
+            <FiX className="h-4 w-4" />
             <span className="sr-only">Close</span>
           </Link>
         </DialogPrimitive.Close>

@@ -10,22 +10,11 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { FiChevronRight } from 'react-icons/fi';
-import { Dispatch, SetStateAction } from 'react';
 import { cn } from '@/lib/utils';
 
-export function UserDropdown({
-  isSidebarOpen,
-  setUserDropdownOpen,
-}: {
-  isSidebarOpen: boolean;
-  setUserDropdownOpen: Dispatch<SetStateAction<boolean>>;
-}) {
+export function UserDropdown() {
   return (
-    <DropdownMenu
-      onOpenChange={(open) => {
-        setUserDropdownOpen(open);
-      }}
-    >
+    <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
           variant="secondary"
@@ -40,7 +29,7 @@ export function UserDropdown({
             <AvatarFallback>J</AvatarFallback>
           </Avatar>
           <div
-            className={cn('flex-col flex-1', isSidebarOpen ? 'flex' : 'hidden')}
+            className={cn('flex flex-col flex-1 sidebar-text')}
           >
             <span className="ml-2 text-sm font-semibold text-left">
               Jesus Perez
@@ -51,11 +40,11 @@ export function UserDropdown({
           </div>
           <FiChevronRight
             size={18}
-            className={cn(isSidebarOpen ? '' : 'hidden')}
+            className="sidebar-text"
           />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent>
+      <DropdownMenuContent className="dropdown-menu-has-content">
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem>

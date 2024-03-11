@@ -86,8 +86,26 @@ input:not(:focus):not(:placeholder-shown):invalid ~ .input-label {
   width: 5px;
 }
 
+.sidebar {
+  width: 4rem;
+}
+
+.sidebar-text {
+  opacity: 0;
+  visibility: hidden;
+}
+
 /* Handle on hover */
 .my-organizations-list-dialog:hover::-webkit-scrollbar-thumb {
   background-color: #e4e4e7;
   border-radius: 10px;
+}
+
+body:has(.dropdown-menu-has-content) .sidebar, .sidebar:hover {
+  width: 18rem;
+}
+
+body:has(.dropdown-menu-has-content) .sidebar-text, .sidebar:hover .sidebar-text {
+  opacity: 1;
+  visibility: visible;
 }
